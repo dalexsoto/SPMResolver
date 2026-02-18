@@ -47,6 +47,7 @@ Use `--disable-release-asset-lookup` (only valid with `--package-url`) when you 
 ## 4) Expect long-running builds
 
 The tool builds up to 4 slices per product (`ios`, `ios-simulator`, `macos`, `maccatalyst`), so large packages can take significant time. Rely on product/slice progress logs during execution.
+Per-slice builds are timeout-guarded at 30 minutes, and artifact discovery is timeout-guarded at 5 minutes.
 Recent sampled validation runs reached 28/30 package success, so occasional package-specific outliers are expected.
 The tool prints the workspace path at startup (`Temporary workspace: ...`).
 For GitHub `--package-url` inputs, the tool first checks release archives for prebuilt `.xcframework` outputs and only falls back to source builds when none are found.

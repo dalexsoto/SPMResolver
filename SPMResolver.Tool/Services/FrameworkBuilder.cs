@@ -418,6 +418,7 @@ public sealed class FrameworkBuilder(ProcessRunner processRunner)
         var productsRootPath = Path.Combine(derivedDataPath, "Build", "Products");
         foreach (var directoryHint in target.ProductDirectoryHints)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var productDirectoryPath = Path.Combine(productsRootPath, directoryHint);
             if (!Directory.Exists(productDirectoryPath))
             {
@@ -427,6 +428,7 @@ public sealed class FrameworkBuilder(ProcessRunner processRunner)
             var frameworkPath = Path.Combine(productDirectoryPath, $"{productName}.framework");
             if (!Directory.Exists(frameworkPath))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 frameworkPath = Directory
                     .GetDirectories(productDirectoryPath, $"{productName}.framework", SearchOption.AllDirectories)
                     .FirstOrDefault() ?? string.Empty;
@@ -453,6 +455,7 @@ public sealed class FrameworkBuilder(ProcessRunner processRunner)
 
             if (!File.Exists(staticLibraryPath))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 staticLibraryPath = Directory
                     .GetFiles(productDirectoryPath, $"lib{productName}.a", SearchOption.AllDirectories)
                     .FirstOrDefault() ?? string.Empty;

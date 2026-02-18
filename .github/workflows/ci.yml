@@ -1,0 +1,118 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: 🔨 Build & Pack
+    runs-on: macos-latest
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: ⚙️ Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: 🏷️ Resolve Package Version
+      id: version
+      shell: bash
+      env:
+        TAG_NAME: ${{ github.event.release.tag_name }}
+      run: |
+        VERSION=""
+        if [ "${{ github.event_name }}" = "release" ]; then
+          VERSION="$TAG_NAME"
+          VERSION="${VERSION#v}"
+        fi
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+    - name: 📦 Pack
+      shell: bash
+      env:
+        PACKAGE_VERSION: ${{ steps.version.outputs.version }}
+      run: |
+        mkdir -p ./artifacts
+        if [ -n "$PACKAGE_VERSION" ]; then
+          dotnet pack SPMResolver.Tool/SPMResolver.Tool.csproj --nologo --configuration Release --output ./artifacts "/p:Version=$PACKAGE_VERSION"
+        else
+          dotnet pack SPMResolver.Tool/SPMResolver.Tool.csproj --nologo --configuration Release --output ./artifacts
+        fi
+
+    - name: 📤 Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: NuGet
+        path: ./artifacts/
+        if-no-files-found: error
+
+  test:
+    name: 🧪 Test
+    needs: build
+    runs-on: macos-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: ⚙️ Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: 🧪 Run Tests
+      run: >
+        dotnet test SPMResolver.slnx
+        --nologo
+        --configuration Release
+        --logger "trx;LogFileName=test-results.trx"
+        --logger "console;verbosity=detailed"
+        --results-directory ./TestResults
+
+    - name: 📊 Publish Test Results
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+        name: Test Results
+        path: './TestResults/*.trx'
+        reporter: dotnet-trx
+        fail-on-error: true
+
+  publish:
+    name: 🚀 Publish to NuGet
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    steps:
+    - name: 📥 Download Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: NuGet
+        path: ./artifacts
+
+    - name: ⚙️ Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: 🚀 Push to NuGet
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_ORG_API_KEY }}
+      run: |
+        dotnet nuget push ./artifacts/*.nupkg --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY" --skip-duplicate

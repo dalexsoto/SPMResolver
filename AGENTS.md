@@ -15,6 +15,7 @@ Guidance for AI agents working in this repository.
 - `SPMResolver.Tool/Services/DependencyExporter.cs` - output copy + `manifest.json`
 - `SPMResolver.Tool/Services/ProcessRunner.cs` - subprocess execution/cancellation
 - `SPMResolver.Tool.Tests/` - unit and macOS-gated integration tests
+- `.github/workflows/ci.yml` - CI/CD pipeline (build, test, release publish)
 
 ## Standard workflow
 
@@ -24,6 +25,14 @@ Guidance for AI agents working in this repository.
    - `dotnet test --nologo`
 4. For runtime checks, use:
    - `dotnet run --project SPMResolver.Tool/SPMResolver.Tool.csproj --no-build -- <args>`
+
+## CI workflow notes
+
+- CI runs on pull requests, pushes to `main`, and published releases.
+- Build job packs `SPMResolver.Tool/SPMResolver.Tool.csproj` and uploads NuGet artifacts.
+- Test job runs `dotnet test SPMResolver.slnx` with TRX output.
+- Publish job runs only for releases and pushes artifacts to NuGet using `NUGET_ORG_API_KEY`.
+- Release package version is derived from release tag (leading `v` stripped) to avoid re-publishing default `0.1.0`.
 
 ## Running the tool safely
 
@@ -51,6 +60,7 @@ Guidance for AI agents working in this repository.
 - Large packages (e.g., Firebase) can run for a long time; progress is printed per product/slice.
 - Known success rate: ~93% (28/30 sampled packages). Failures are typically due to complex dependency graphs or unsupported build settings.
 - Build process includes automatic retries for library evolution (strict -> compatibility mode) and macro validation (strict -> skipped).
+- Current long-operation guards: `git checkout` 15m, per-slice `xcodebuild build` 30m, artifact discovery 5m.
 - Multiple subprocess steps are timeout-guarded; timeout messages are expected failure surfaces, not crashes.
 
 ## Retry and fallback chain (per slice)
