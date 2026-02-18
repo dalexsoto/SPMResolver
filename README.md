@@ -10,32 +10,30 @@
 - Git available on `PATH`
 - Xcode command line tools (`xcodebuild`) available on `PATH`
 
-## Install
+## Install (NuGet)
+
+Package: https://www.nuget.org/packages/SPMResolver/
+
+```bash
+dotnet tool install --global SPMResolver
+dotnet tool update --global SPMResolver
+```
+
+## Install from local source (development)
 
 ```bash
 dotnet pack src/SPMResolver/SPMResolver.csproj -c Release -o ./nupkg
 dotnet tool install --tool-path ./tools SPMResolver --add-source ./nupkg
 ```
 
-## CI/CD
-
-GitHub Actions workflow: `.github/workflows/ci.yml`
-
-- Triggers on `pull_request`, pushes to `main`, and published `release` events.
-- `build` job packs `src/SPMResolver/SPMResolver.csproj` and uploads `.nupkg` artifacts.
-- `test` job runs `dotnet test SPMResolver.slnx` and publishes TRX results.
-- `publish` job runs only on release events, waits for build+test, then pushes to NuGet.org.
-- Release packs use the release tag as package version (leading `v` is stripped) to avoid duplicate publishes of the default `0.1.0`.
-
-Required repository secret:
-- `NUGET_ORG_API_KEY`
+When installed with `--tool-path`, invoke it as `./tools/spm-resolver`.
 
 ## Usage
 
 ### Resolve from a local package
 
 ```bash
-./tools/spm-resolver \
+spm-resolver \
   --package-path /path/to/MyPackage \
   --output /path/to/exported-xcframeworks
 ```
@@ -45,7 +43,7 @@ Required repository secret:
 ### Resolve from a remote package URL
 
 ```bash
-./tools/spm-resolver \
+spm-resolver \
   --package-url https://github.com/example/MyPackage.git \
   --tag 1.2.3 \
   --output /path/to/exported-xcframeworks

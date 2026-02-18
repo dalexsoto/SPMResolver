@@ -7,6 +7,14 @@ description: Use this skill when you need to run SPMResolver in this repository 
 
 Use this workflow to run the local tool reliably.
 
+Published package: https://www.nuget.org/packages/SPMResolver/
+If you need to verify released behavior, install/update it with:
+
+```bash
+dotnet tool install --global SPMResolver
+dotnet tool update --global SPMResolver
+```
+
 ## 1) Verify prerequisites
 
 Run:
