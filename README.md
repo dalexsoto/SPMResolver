@@ -13,8 +13,8 @@
 ## Install
 
 ```bash
-dotnet pack SPMResolver.Tool/SPMResolver.Tool.csproj -c Release -o ./nupkg
-dotnet tool install --tool-path ./tools SPMResolver.Tool --add-source ./nupkg
+dotnet pack src/SPMResolver/SPMResolver.csproj -c Release -o ./nupkg
+dotnet tool install --tool-path ./tools SPMResolver --add-source ./nupkg
 ```
 
 ## CI/CD
@@ -22,7 +22,7 @@ dotnet tool install --tool-path ./tools SPMResolver.Tool --add-source ./nupkg
 GitHub Actions workflow: `.github/workflows/ci.yml`
 
 - Triggers on `pull_request`, pushes to `main`, and published `release` events.
-- `build` job packs `SPMResolver.Tool/SPMResolver.Tool.csproj` and uploads `.nupkg` artifacts.
+- `build` job packs `src/SPMResolver/SPMResolver.csproj` and uploads `.nupkg` artifacts.
 - `test` job runs `dotnet test SPMResolver.slnx` and publishes TRX results.
 - `publish` job runs only on release events, waits for build+test, then pushes to NuGet.org.
 - Release packs use the release tag as package version (leading `v` is stripped) to avoid duplicate publishes of the default `0.1.0`.

@@ -45,9 +45,9 @@ jobs:
       run: |
         mkdir -p ./artifacts
         if [ -n "$PACKAGE_VERSION" ]; then
-          dotnet pack SPMResolver.Tool/SPMResolver.Tool.csproj --nologo --configuration Release --output ./artifacts "/p:Version=$PACKAGE_VERSION"
+          dotnet pack src/SPMResolver/SPMResolver.csproj --nologo --configuration Release --output ./artifacts "/p:Version=$PACKAGE_VERSION"
         else
-          dotnet pack SPMResolver.Tool/SPMResolver.Tool.csproj --nologo --configuration Release --output ./artifacts
+          dotnet pack src/SPMResolver/SPMResolver.csproj --nologo --configuration Release --output ./artifacts
         fi
 
     - name: 📤 Upload Artifacts

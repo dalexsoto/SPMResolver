@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RollForward>Major</RollForward>
+    <AssemblyName>spm-resolver</AssemblyName>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>spm-resolver</ToolCommandName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>SPMResolver</PackageId>
+    <Title>SPMResolver - Swift Package to XCFramework Resolver</Title>
+    <Version>0.1.0</Version>
+    <Authors>dalexsoto</Authors>
+    <Description>A .NET CLI tool that resolves Swift Package Manager dependencies and exports XCFramework outputs for .NET MAUI / macios binding workflows.</Description>
+    <PackageProjectUrl>https://github.com/dalexsoto/SPMResolver</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/dalexsoto/SPMResolver</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>swiftpm;swift-package-manager;xcframework;maui;macios;ios;dotnet-tool</PackageTags>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <DebugType>portable</DebugType>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.3" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>

@@ -8,13 +8,13 @@ Guidance for AI agents working in this repository.
 
 ## Repository map
 
-- `SPMResolver.Tool/Program.cs` - CLI entrypoint and error/exit-code handling
-- `SPMResolver.Tool/Cli/` - request model + argument validation
-- `SPMResolver.Tool/Services/ResolverOrchestrator.cs` - end-to-end pipeline
-- `SPMResolver.Tool/Services/FrameworkBuilder.cs` - product discovery, scheme resolution fallback, slice build retries, XCFramework creation
-- `SPMResolver.Tool/Services/DependencyExporter.cs` - output copy + `manifest.json`
-- `SPMResolver.Tool/Services/ProcessRunner.cs` - subprocess execution/cancellation
-- `SPMResolver.Tool.Tests/` - unit and macOS-gated integration tests
+- `src/SPMResolver/Program.cs` - CLI entrypoint and error/exit-code handling
+- `src/SPMResolver/Cli/` - request model + argument validation
+- `src/SPMResolver/Services/ResolverOrchestrator.cs` - end-to-end pipeline
+- `src/SPMResolver/Services/FrameworkBuilder.cs` - product discovery, scheme resolution fallback, slice build retries, XCFramework creation
+- `src/SPMResolver/Services/DependencyExporter.cs` - output copy + `manifest.json`
+- `src/SPMResolver/Services/ProcessRunner.cs` - subprocess execution/cancellation
+- `src/SPMResolver.Tests/` - unit and macOS-gated integration tests
 - `.github/workflows/ci.yml` - CI/CD pipeline (build, test, release publish)
 
 ## Standard workflow
@@ -24,12 +24,12 @@ Guidance for AI agents working in this repository.
 3. Validate with:
    - `dotnet test --nologo`
 4. For runtime checks, use:
-   - `dotnet run --project SPMResolver.Tool/SPMResolver.Tool.csproj --no-build -- <args>`
+   - `dotnet run --project src/SPMResolver/SPMResolver.csproj --no-build -- <args>`
 
 ## CI workflow notes
 
 - CI runs on pull requests, pushes to `main`, and published releases.
-- Build job packs `SPMResolver.Tool/SPMResolver.Tool.csproj` and uploads NuGet artifacts.
+- Build job packs `src/SPMResolver/SPMResolver.csproj` and uploads NuGet artifacts.
 - Test job runs `dotnet test SPMResolver.slnx` with TRX output.
 - Publish job runs only for releases and pushes artifacts to NuGet using `NUGET_ORG_API_KEY`.
 - Release package version is derived from release tag (leading `v` stripped) to avoid re-publishing default `0.1.0`.
