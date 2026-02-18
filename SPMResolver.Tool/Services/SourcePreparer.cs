@@ -10,7 +10,7 @@ public sealed class SourcePreparer(
     private readonly GitHubReleaseClient _gitHubReleaseClient = gitHubReleaseClient;
     private readonly ArchiveExtractor _archiveExtractor = archiveExtractor;
     private static readonly TimeSpan GitCloneTimeout = TimeSpan.FromMinutes(30);
-    private static readonly TimeSpan GitCheckoutTimeout = TimeSpan.FromMinutes(5);
+    private static readonly TimeSpan GitCheckoutTimeout = TimeSpan.FromMinutes(15);
 
     public async Task<SourcePreparationResult> PrepareAsync(ResolveRequest request, TemporaryWorkspace workspace, CancellationToken cancellationToken)
     {
@@ -39,7 +39,14 @@ public sealed class SourcePreparer(
         string? revision,
         string destinationPath)
     {
-        var arguments = new List<string> { "clone" };
+        var arguments = new List<string>
+        {
+            "clone",
+            "--no-template",
+            "--config", "core.fsmonitor=false",
+            "--filter=blob:none",
+            "--single-branch"
+        };
 
         if (!string.IsNullOrWhiteSpace(revision))
         {

@@ -47,8 +47,8 @@ public sealed class FrameworkBuilder(ProcessRunner processRunner)
     ];
 
     private readonly ProcessRunner _processRunner = processRunner;
-    private static readonly TimeSpan SliceBuildTimeout = TimeSpan.FromMinutes(12);
-    private static readonly TimeSpan ArtifactDiscoveryTimeout = TimeSpan.FromMinutes(2);
+    private static readonly TimeSpan SliceBuildTimeout = TimeSpan.FromMinutes(30);
+    private static readonly TimeSpan ArtifactDiscoveryTimeout = TimeSpan.FromMinutes(5);
     private static readonly TimeSpan XcframeworkCreateTimeout = TimeSpan.FromMinutes(5);
     private static readonly TimeSpan SchemeListTimeout = TimeSpan.FromMinutes(5);
     private static readonly TimeSpan PackageDumpTimeout = TimeSpan.FromMinutes(2);
@@ -173,6 +173,11 @@ public sealed class FrameworkBuilder(ProcessRunner processRunner)
             else
             {
                 Console.WriteLine($"  - {target.Key}: failed ({sliceOutcome.Result.Message}).");
+                if (sliceOutcome.TimedOut)
+                {
+                    Console.WriteLine("  Slice timed out; skipping remaining platforms for this product.");
+                    break;
+                }
             }
         }
 
@@ -279,7 +284,8 @@ public sealed class FrameworkBuilder(ProcessRunner processRunner)
                         attempt.Artifact.Path,
                         attempt.Artifact.SymbolPaths,
                         plan.SuccessMessage),
-                    Artifact: attempt.Artifact);
+                    Artifact: attempt.Artifact,
+                    TimedOut: false);
             }
 
             lastAttempt = attempt;
@@ -298,7 +304,8 @@ public sealed class FrameworkBuilder(ProcessRunner processRunner)
                 ArtifactPath: null,
                 SymbolPaths: [],
                 Message: lastAttempt?.ErrorMessage ?? "Slice build failed."),
-            Artifact: null);
+            Artifact: null,
+            TimedOut: lastAttempt?.TimedOut ?? false);
     }
 
     private async Task<SliceBuildAttempt> TryBuildSliceAsync(
@@ -888,7 +895,8 @@ public sealed class FrameworkBuilder(ProcessRunner processRunner)
 
     private sealed record SliceBuildOutcome(
         SliceBuildResult Result,
-        SliceArtifact? Artifact);
+        SliceArtifact? Artifact,
+        bool TimedOut);
 
     private sealed record ProductBuildOutcome(
         BuiltProduct? BuiltProduct,

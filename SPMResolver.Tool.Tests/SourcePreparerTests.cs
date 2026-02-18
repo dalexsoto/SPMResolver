@@ -27,6 +27,8 @@ public class SourcePreparerTests
             revision: null,
             destinationPath: "/tmp/repo");
 
+        Assert.Contains("--no-template", arguments);
+        Assert.Contains("--single-branch", arguments);
         Assert.Contains("--depth", arguments);
         Assert.Contains("1", arguments);
         Assert.Contains("--branch", arguments);
@@ -44,6 +46,8 @@ public class SourcePreparerTests
             revision: "abcdef1234",
             destinationPath: "/tmp/repo");
 
+        Assert.Contains("--no-template", arguments);
+        Assert.Contains("--single-branch", arguments);
         Assert.DoesNotContain("--depth", arguments);
         Assert.DoesNotContain("--branch", arguments);
         Assert.Contains("--", arguments);
