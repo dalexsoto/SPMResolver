@@ -1,4 +1,4 @@
 <Solution>
-  <Project Path="SPMResolver.Tool.Tests/SPMResolver.Tool.Tests.csproj" />
-  <Project Path="SPMResolver.Tool/SPMResolver.Tool.csproj" />
+  <Project Path="src/SPMResolver.Tests/SPMResolver.Tests.csproj" />
+  <Project Path="src/SPMResolver/SPMResolver.csproj" />
 </Solution>

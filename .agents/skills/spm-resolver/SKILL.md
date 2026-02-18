@@ -23,12 +23,12 @@ Use one of:
 
 ```bash
 # local package path (directory or Package.swift)
-dotnet run --project SPMResolver.Tool/SPMResolver.Tool.csproj --no-build -- \
+dotnet run --project src/SPMResolver/SPMResolver.csproj --no-build -- \
   --package-path /absolute/path/to/PackageOrManifest \
   --output /absolute/path/to/output
 
 # remote package URL
-dotnet run --project SPMResolver.Tool/SPMResolver.Tool.csproj --no-build -- \
+dotnet run --project src/SPMResolver/SPMResolver.csproj --no-build -- \
   --package-url https://github.com/org/repo.git \
   --tag 1.2.3 \
   --output /absolute/path/to/output
