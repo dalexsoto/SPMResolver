@@ -6,6 +6,10 @@ Guidance for AI agents working in this repository.
 
 `spm-resolver` is a .NET 10 CLI that takes a Swift package (local or remote) and exports XCFramework outputs suitable for .NET MAUI / macios binding workflows.
 
+Published package:
+- https://www.nuget.org/packages/SPMResolver/
+- Install: `dotnet tool install --global SPMResolver`
+
 ## Repository map
 
 - `src/SPMResolver/Program.cs` - CLI entrypoint and error/exit-code handling
