@@ -18,6 +18,32 @@ public class SourcePreparerTests
     }
 
     [Fact]
+    public void GetCloneDirectoryNameFromPackageUrl_ReturnsRepositoryName_ForHttpsUrl()
+    {
+        var directoryName = SourcePreparer.GetCloneDirectoryNameFromPackageUrl(
+            "https://github.com/PostHog/posthog-ios.git");
+
+        Assert.Equal("posthog-ios", directoryName);
+    }
+
+    [Fact]
+    public void GetCloneDirectoryNameFromPackageUrl_ReturnsRepositoryName_ForSshUrl()
+    {
+        var directoryName = SourcePreparer.GetCloneDirectoryNameFromPackageUrl(
+            "git@github.com:pointfreeco/swift-sharing.git");
+
+        Assert.Equal("swift-sharing", directoryName);
+    }
+
+    [Fact]
+    public void GetCloneDirectoryNameFromPackageUrl_FallsBackToPackage_ForInvalidUrl()
+    {
+        var directoryName = SourcePreparer.GetCloneDirectoryNameFromPackageUrl("   ");
+
+        Assert.Equal("package", directoryName);
+    }
+
+    [Fact]
     public void BuildCloneArguments_UsesDepthAndBranch_WhenTagIsProvided()
     {
         var arguments = SourcePreparer.BuildCloneArgumentList(

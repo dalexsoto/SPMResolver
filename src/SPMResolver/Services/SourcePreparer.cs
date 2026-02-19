@@ -90,6 +90,10 @@ public sealed class SourcePreparer(
 
     private async Task<SourcePreparationResult> PrepareRemotePackageAsync(ResolveRequest request, TemporaryWorkspace workspace, CancellationToken cancellationToken)
     {
+        var remotePackagePath = Path.Combine(
+            workspace.RootPath,
+            GetCloneDirectoryNameFromPackageUrl(request.PackageUrl!));
+
         Console.WriteLine(
             $"Remote ref selection: tag='{request.Tag ?? "<none>"}', branch='{request.Branch ?? "<none>"}', revision='{request.Revision ?? "<none>"}'.");
 
@@ -156,7 +160,7 @@ public sealed class SourcePreparer(
             request.Tag,
             request.Branch,
             request.Revision,
-            workspace.PackagePath);
+            remotePackagePath);
 
         using (var cloneTimeoutSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
         {
@@ -180,7 +184,7 @@ public sealed class SourcePreparer(
                 await _processRunner.RunAsync(
                     "git",
                     BuildCheckoutArgumentList(request.Revision),
-                    workspace.PackagePath,
+                    remotePackagePath,
                     checkoutTimeoutSource.Token);
             }
             catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
@@ -189,8 +193,8 @@ public sealed class SourcePreparer(
             }
         }
 
-        EnsurePackageManifestExists(workspace.PackagePath);
-        return new SourcePreparationResult(workspace.PackagePath, false);
+        EnsurePackageManifestExists(remotePackagePath);
+        return new SourcePreparationResult(remotePackagePath, false);
     }
 
     private static string GetArchiveStem(string archivePath)
@@ -261,4 +265,46 @@ public sealed class SourcePreparer(
     }
 
     private static string Quote(string value) => $"\"{value.Replace("\"", "\\\"", StringComparison.Ordinal)}\"";
+
+    public static string GetCloneDirectoryNameFromPackageUrl(string packageUrl)
+    {
+        if (string.IsNullOrWhiteSpace(packageUrl))
+        {
+            return "package";
+        }
+
+        var trimmedUrl = packageUrl.Trim();
+        var pathPortion = trimmedUrl;
+        const string sshPrefix = "git@";
+        var colonIndex = -1;
+        if (trimmedUrl.StartsWith(sshPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            colonIndex = trimmedUrl.IndexOf(':');
+            if (colonIndex >= 0 && colonIndex < trimmedUrl.Length - 1)
+            {
+                pathPortion = trimmedUrl[(colonIndex + 1)..];
+            }
+        }
+        else if (Uri.TryCreate(trimmedUrl, UriKind.Absolute, out var uri))
+        {
+            pathPortion = uri.AbsolutePath;
+        }
+
+        var segments = pathPortion
+            .Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var lastSegment = segments.LastOrDefault() ?? string.Empty;
+        if (lastSegment.EndsWith(".git", StringComparison.OrdinalIgnoreCase))
+        {
+            lastSegment = lastSegment[..^4];
+        }
+
+        var sanitized = new string(lastSegment
+            .Select(character => Path.GetInvalidFileNameChars().Contains(character) ? '-' : character)
+            .ToArray())
+            .Trim();
+
+        return string.IsNullOrWhiteSpace(sanitized) || sanitized is "." or ".."
+            ? "package"
+            : sanitized;
+    }
 }
